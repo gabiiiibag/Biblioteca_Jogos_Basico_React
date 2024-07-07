@@ -11,7 +11,7 @@ function App() {
   const addGame = ({ title, cover }) => {
     const id = Math.floor(Math.random() * 1000000)
     const game = {id, title, cover}
-    setGame(state => [...state, game])
+    setGame((state) => [...state, game])
     /*state = estado atual. 
     [...state, game] cria um novo array que contém todos os itens do array state original, seguidos pelo novo jogo game.*/
   }
