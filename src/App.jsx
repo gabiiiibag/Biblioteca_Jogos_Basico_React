@@ -1,7 +1,11 @@
 import { useState } from "react"
 
 function App() {
-  const [game, setGame] = useState([])
+  const [games, setGames] = useState(() => {
+    const storedGames = localStorage.getItem("game-lib")
+    if (!storedGames) return []
+    return JSON.parse(storedGames)
+  })
   const [title, setTitle] = useState("")
   const [cover, setCover] = useState("")
         /* |        \*/
@@ -10,10 +14,20 @@ function App() {
 
   const addGame = ({ title, cover }) => {
     const id = Math.floor(Math.random() * 1000000)
-    const game = {id, title, cover}
-    setGame((state) => [...state, game])
-    /*state = estado atual. 
-    [...state, game] cria um novo array que contém todos os itens do array state original, seguidos pelo novo jogo game.*/
+    const game = { id, title, cover }
+    setGames(state => {
+      const newState = [...state, game]
+      localStorage.setItem("game-lib", JSON.stringify(newState))
+      return newState
+    })
+  }
+
+  const removeGame = (id) => {
+    setGames(state => {
+      const newState = state.filter(game => game.id !== id)
+      localStorage.setItem("game-lib", JSON.stringify(newState))
+      return newState
+    })
   }
 
   const handleSubmit = (ev) => {
@@ -29,43 +43,25 @@ function App() {
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="title">Título:</label>
-          <input 
-            type="text"
-            name="title"
-            id="title"
-            value={title} /*value eh o estado atual*/
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <input type="text" id="title" value={title} onChange={(ev) => setTitle(ev.target.value)} />
         </div>
         <div>
           <label htmlFor="cover">Capa:</label>
-          <input 
-            type="text"
-            name="cover" 
-            id="cover"
-            value={cover} /*value eh o estado atual*/
-            onChange={(e) => setCover(e.target.value)}
-            /*O parâmetro e (event) é um objeto que contém informações sobre o evento que ocorreu. */
-            /*e.target refere-se ao elemento que disparou o evento (neste caso, o elemento input). */
-            /*e.target.value é o valor atual do input, ou seja, o texto que o usuário digitou. */
-
-            /**title é uma string vazia "". O input é renderizado como <input type="text" value="" />. */
-            /**onChange dispara e setTitle("A") é chamado.
-            O estado title é atualizado para "A". */
-          />
+          <input type="text" id="cover" value={cover} onChange={(ev) => setCover(ev.target.value)} />
         </div>
         <button>Adicionar</button>
       </form>
       <div className="games">
         {games.map((game) => (
           <div key={game.id}>
-            <img src={game.cover} alt="" />
+            <img src={game.cover} alt="Capa do jogo" />
             <div>
               <h2>{game.title}</h2>
-              <button>Remover jogo</button>
+              <button onClick={() => removeGame(game.id)}>
+                Remover
+              </button>
             </div>
-          </div>
-        ))}
+          </div>))}
       </div>
     </div>
   )
